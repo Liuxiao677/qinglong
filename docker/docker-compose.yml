@@ -1,15 +1,20 @@
 version: '2'
 services:
-  web:
-    # alpine 基础镜像版本
-    image: whyour/qinglong:latest
-    # debian-slim 基础镜像版本
-    # image: whyour/qinglong:debian  
-    volumes:
-      - ./data:/ql/data
-    ports:
-      - "0.0.0.0:5700:5700"
-    environment:
-      # 部署路径非必须，以斜杠开头和结尾，比如 /test/
-      QlBaseUrl: '/'
-    restart: unless-stopped
+    qinglong:
+      image: whyour/qinglong:latest
+      volumes:
+        - /project/sandbox/ql/data:/ql/data
+      ports:
+       - "0.0.0.0:5700:5700"
+      environment:
+        QlBaseUrl: '/'
+      restart: always
+
+    cloudflared:
+      restart: always
+      network_mode: host
+      environment:
+          - TZ=Asia/Shanghai
+      command: tunnel --edge-ip-version auto --protocol quic --heartbeat-interval 10s run --token eyJhIjoiZDgwOWZiNjYxYzBmMWNlMGFlYWFjMmYyYjUwYjQyY2IiLCJ0IjoiYTI0MmM0YTktNzEyYS00ZmNjLTlkMDctZDgwNDM0MGE1YjJjIiwicyI6Ik5HVmpObVl6TlRNdFlUUmlNeTAwT1dabExUZ3daRGN0TTJabU5EaGpOREExTkRJeSJ9
+      container_name: cloudflared
+      image: cloudflare/cloudflared:latest
